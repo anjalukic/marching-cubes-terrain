@@ -19,36 +19,56 @@ struct Cube
 
 public class CubeGrid : MonoBehaviour
 {
-    float width = 10f;
-    float height = 3f;
-    public float isolevel = 6.5f;
+    float width = 15f;
+    float height = 5f;
+    float isolevel = 5f;
     private float oldIsolevel = -1f;
     public MarchingCube marchingCube;
     public Material cubeMat;
-    public float cubeSize = 0.2f;
+    float cubeSize = 0.2f;
     private float oldCubeSize = -1.0f;
     public bool renderGrid = false;
-    public float brushSize = 1.0f;
-    public float brushIntensity = 0.5f;
+    float brushSize = 0.2f;
+    float brushIntensity = 0.2f;
     private List<Cube> cubes;
     public Text cubeSizeText;
     public Text brushSizeText;
     public Text brushIntensityText;
+    public Slider cubeSizeSlider;
+    public Slider brushSizeSlider;
+    public Slider brushIntensitySlider;
+    public GameObject cursor;
+    public float densityAmplitude = 0.5f;
+    public float densityFrequency = 5f;
+    float oldAmplitude = -1;
+    float oldFrequency = -1;
+    public InputField flattenInput;
+    private bool flatten = false;
 
 
     private void Start()
     {
         marchingCube = gameObject.GetComponentInChildren<MarchingCube>();
     }
+
+ 
     void Update()
     {
+        //follow cursor
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit, 100.0f)) {
+            cursor.transform.position = hit.point;
+            cursor.transform.localScale = new Vector3(brushSize*2, brushSize*2, brushSize * 2);
+        }
 
-        if (cubeSize != oldCubeSize || isolevel != oldIsolevel)
+        if (cubeSize != oldCubeSize || isolevel != oldIsolevel || densityAmplitude != oldAmplitude || densityFrequency != oldFrequency)
         {
             oldCubeSize = cubeSize;
             oldIsolevel = isolevel;
-            marchingCube.clearVertices();
-            cubes = new List<Cube>();
+            oldFrequency = densityFrequency;
+            oldAmplitude = densityAmplitude;
+            
 
             if (renderGrid)
             {
@@ -61,15 +81,13 @@ public class CubeGrid : MonoBehaviour
 
             generateGridAndRender();
             
-            marchingCube.renderMesh();
         }
 
         if (Input.GetMouseButton(0))
         {
             marchingCube.clearVertices();
 
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 100.0f)){
                 foreach (Cube cube in cubes){
                     for (int i=0; i<8; i++){
@@ -88,10 +106,10 @@ public class CubeGrid : MonoBehaviour
         {
             marchingCube.clearVertices();
 
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, 100.0f))
             {
+                cursor.transform.position = hit.point;
                 foreach (Cube cube in cubes)
                 {
                     for (int i = 0; i < 8; i++)
@@ -113,6 +131,8 @@ public class CubeGrid : MonoBehaviour
 
     void generateGridAndRender()
     {
+        marchingCube.clearVertices();
+        cubes = new List<Cube>();
         int numOfCubesWidth = Mathf.RoundToInt(width/cubeSize);
         int numOfCubesHeight = Mathf.RoundToInt(height / cubeSize);
 
@@ -148,6 +168,8 @@ public class CubeGrid : MonoBehaviour
                 }
             }
         }
+
+        marchingCube.renderMesh();
     }
 
 
@@ -177,15 +199,49 @@ public class CubeGrid : MonoBehaviour
 
     float generateDensity(Vector3 vertexCoords)
     {
-        // sphere
-        //return Mathf.Pow(vertexCoords.x - (float)width/2*cubeSize,2) + Mathf.Pow(vertexCoords.y-(float)height/2 * cubeSize, 2) + Mathf.Pow(vertexCoords.z-(float)width/2 * cubeSize, 2);
-        //return vertexCoords.y + height * Mathf.PerlinNoise((float)vertexCoords.x / width * 8.03f, (float)vertexCoords.z / width * 8.03f);
-        return vertexCoords.y;
+        if (flatten)
+        {
+            return vertexCoords.y;
+        }
+        float density = vertexCoords.y;
+        density += height * Mathf.PerlinNoise(vertexCoords.x / width * densityFrequency, vertexCoords.z / width * densityFrequency) * densityAmplitude;
+        return density;
     }
 
     public void OnCubeSizeSliderChanged(float value)
     {
-        cubeSize = value/4f;
+        switch (value)
+        {
+            case 0: cubeSize = 0f;
+                break;
+            case 1: cubeSize = 0.2f;
+                brushSize = 0.2f;
+                brushSizeText.text = "Brush size: " + brushSize.ToString("F2");
+                brushSizeSlider.value = brushSize;
+                brushIntensity = 0.2f;
+                brushIntensityText.text = "Brush intensity: " + brushIntensity.ToString("F2");
+                brushIntensitySlider.value = brushIntensity;
+                break;
+            case 2:
+                cubeSize = 0.5f;
+                brushSize = 0.3f;
+                brushSizeText.text = "Brush size: " + brushSize.ToString("F2");
+                brushSizeSlider.value = brushSize;
+                brushIntensity = 0.3f;
+                brushIntensityText.text = "Brush intensity: " + brushIntensity.ToString("F2");
+                brushIntensitySlider.value = brushIntensity;
+                break;
+            case 3:
+                cubeSize = 1.0f;
+                brushSize = 0.6f;
+                brushSizeText.text = "Brush size: " + brushSize.ToString("F2");
+                brushSizeSlider.value = brushSize;
+                brushIntensity = 0.6f;
+                brushIntensityText.text = "Brush intensity: " + brushIntensity.ToString("F2");
+                brushIntensitySlider.value = brushIntensity;
+                break;
+
+        }
         cubeSizeText.text = "Voxel size: " + cubeSize;
     }
     public void OnBrushSizeSliderChanged(float value)
@@ -197,5 +253,31 @@ public class CubeGrid : MonoBehaviour
     {
         brushIntensity = value;
         brushIntensityText.text = "Brush intensity: " + brushIntensity.ToString("F2");
+    }
+
+    public float getWidth()
+    {
+        return width;
+    }
+    public float getHeight()
+    {
+        return height;
+    }
+
+    public void flattenToValue(){
+        float result;
+        if (float.TryParse(flattenInput.text, out result)){
+            flatten = true;
+            isolevel = result;
+            oldIsolevel = isolevel;
+            generateGridAndRender();
+            flatten = false;
+        }
+            
+    }
+
+    public void refreshTerrain()
+    {
+        generateGridAndRender();
     }
 }

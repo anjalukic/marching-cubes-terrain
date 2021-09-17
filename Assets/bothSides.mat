@@ -63,19 +63,19 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Level2: 3.33
-    - _Level3: 6.67
+    - _Level2: 3
+    - _Level3: 4
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PeakLevel: 10
+    - _PeakLevel: 5
     - _Slope: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WaterLevel: 0
+    - _WaterLevel: 2
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.15508187, g: 0.5531286, b: 0.8018868, a: 1}
