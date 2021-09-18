@@ -56,14 +56,13 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\CubeGrid.cs" />
-    <Compile Include="Assets\MarchingCube.cs" />
-    <Compile Include="Assets\Tables.cs" />
-    <Compile Include="Assets\moveCamera.cs" />
+    <Compile Include="Assets\Scripts\CubeGrid.cs" />
+    <Compile Include="Assets\Scripts\MarchingCube.cs" />
+    <Compile Include="Assets\Scripts\Tables.cs" />
+    <Compile Include="Assets\Scripts\moveCamera.cs" />
   </ItemGroup>
   <ItemGroup>
-     <None Include="Assets\GEOcolors.shader" />
-     <None Include="Assets\PaintBothSides.shader" />
+     <None Include="Assets\meshColor.shader" />
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2019.4.30f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
